@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -78,6 +79,20 @@ public class MainActivity extends AppCompatActivity {
         filterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                adapter.clear();
+
+                String filter=firstEt.getText().toString();
+
+                Cursor cursor=database.query(TABLE_NAME,new  String[]{"id","first"},"first like '%"+filter+"%'",null,null,null,null);
+                int firstNameIndex=cursor.getColumnIndex("first");
+
+                while (cursor.moveToNext()){
+                    //String person=cursor.getString(firstNameIndex);
+                    //adapter.add(person);
+                     adapter.add(cursor.getString(firstNameIndex));
+                }
+                adapter.notifyDataSetChanged();
+
 
             }
         });
@@ -85,7 +100,14 @@ public class MainActivity extends AppCompatActivity {
         updateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String oldName=firstEt.getText().toString();
+                String newName=lastEt.getText().toString();
 
+                ContentValues contentValues= new ContentValues();
+                contentValues.put("first",newName);
+
+                int count=database.update(TABLE_NAME,contentValues,"first Like '"+oldName+"'",null);
+                Toast.makeText(MainActivity.this, count+" records updated", Toast.LENGTH_SHORT).show();
             }
         });
     }
